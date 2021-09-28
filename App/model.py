@@ -25,6 +25,7 @@
  """
 
 
+'''from typing_extensions import TypeVarTuple'''
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -39,12 +40,103 @@ los mismos.
 
 # Construccion de modelos
 
+def newCatalog():
+    catalog = {'artworks': None,
+               'Medium': None,
+               'Date':None}
+        
+    catalog['artworks']=lt.newList('ARRAY_LIST')
+
+    catalog['Medium'] = mp.newMap(100,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=compareMapMedium)
+
+    return catalog
+
 # Funciones para agregar informacion al catalogo
+
+def addArtworks(catalog,artwork):
+    lt.addLast(catalog['artworks'], artwork)
+    tecnicas=catalog['Medium']
+    if artwork['Medium'] != '':
+        tecnica=artwork['Medium']
+    else:
+        tecnica='Unknown'
+    existTecnica=mp.contains(tecnicas,tecnica)
+
+    if existTecnica:
+        entry= mp.get(tecnicas,tecnica)
+        tecnica_final=me.getValue(entry)
+        anhos=tecnica_final['Dates']
+        if artwork['Date']!='':
+            anho=artwork['Date']
+        else:
+            anho='Unknown'
+        existAnho=mp.contains(anhos,anho)
+
+        if existAnho:
+            entry_2=mp.get(anhos,anho)
+            anho_final=me.getValue(entry_2)
+            lt.addLast(anho_final['artworks'],artwork)
+        else:
+            anho_final=newAnho(anho)
+            lt.addLast(anho_final['artworks'],artwork)
+            
+    else:
+        tecnica_final=newTecnica(tecnica,artwork)
+        mp.put(tecnicas,tecnica,tecnica_final)
+        
+
+
+
+
+def newTecnica(tecnica,artwork):
+    entry={'Tecnica':None,'Dates':None}
+    entry['Tecnica']=tecnica
+    entry['Dates'] = mp.newMap(100,maptype='PROBING',
+                                    loadfactor=2.0,
+                                    comparefunction=compareMapDate)
+    anhos=entry['Dates']
+    if artwork['Date']!='':
+        anho=artwork['Date']
+    else:
+        anho='Unknown'
+    anho_final=newAnho(anho)
+    lt.addLast(anho_final['artworks'],artwork)
+    mp.put(anhos,anho,anho_final)
+    return entry
+
+def newAnho(anho):
+    entry={'Date':'','artworks':None}
+    entry['Date']=anho
+    entry['artworks']=lt.newList('ARRAY_LIST')
+    return entry
 
 # Funciones para creacion de datos
 
 # Funciones de consulta
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+
+def compareMapMedium(keyMedium, medium):
+    medentry = me.getKey(medium)
+    if (keyMedium == medentry):
+        return 0
+    elif (keyMedium > medentry):
+        return 1
+    else:
+        return -1
+
+
+def compareMapDate(keyDate, date):
+    dateEntry=me.getValue(date)
+    if keyDate==dateEntry:
+        return 0
+    elif int(keyDate) > int(dateEntry):
+        return 1
+    else:
+        return 0
+
 
 # Funciones de ordenamiento

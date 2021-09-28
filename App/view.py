@@ -34,6 +34,13 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
+def initCatalog():
+    return controller.initCatalog()
+
+
+def loadData(catalog):
+    controller.loadData(catalog)
+
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
@@ -49,6 +56,10 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
+        catalog = initCatalog()
+        loadData(catalog)
+        print(catalog['Medium'])
+
 
     elif int(inputs[0]) == 2:
         pass
