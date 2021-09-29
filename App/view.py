@@ -34,6 +34,7 @@ se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
 
+
 def initCatalog():
     return controller.initCatalog()
 
@@ -41,10 +42,12 @@ def initCatalog():
 def loadData(catalog):
     controller.loadData(catalog)
 
+
 def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("2- Numero de obras mas antiguas para un medio especifico")
+
 
 catalog = None
 
@@ -60,8 +63,10 @@ while True:
         loadData(catalog)
         print(catalog['Medium'])
 
-
     elif int(inputs[0]) == 2:
+        numObras = int(input('Numero de obras mas antiguas a buscar: '))
+        medio = input('Medio especifico: ')
+
         pass
 
     else:
