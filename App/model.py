@@ -30,7 +30,7 @@ import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
-from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Algorithms.Sorting import mergesort as sm
 assert cf
 
 """
@@ -48,7 +48,7 @@ def newCatalog():
 
     catalog['artworks'] = lt.newList('ARRAY_LIST')
 
-    catalog['Medium'] = mp.newMap(100,
+    catalog['Medium'] = mp.newMap(200,
                                   maptype='CHAINING',
                                   loadfactor=4.0,
                                   comparefunction=compareMapMedium)
@@ -70,52 +70,34 @@ def addArtworks(catalog, artwork):
     if existTecnica:
         entry = mp.get(tecnicas, tecnica)
         tecnica_final = me.getValue(entry)
-        anhos = tecnica_final['Dates']
-        if artwork['Date'] != '':
-            anho = artwork['Date']
-        else:
-            anho = 'Unknown'
-        existAnho = mp.contains(anhos, anho)
-
-        if existAnho:
-            entry_2 = mp.get(anhos, anho)
-            anho_final = me.getValue(entry_2)
-            lt.addLast(anho_final['artworks'], artwork)
-        else:
-            anho_final = newAnho(anho)
-            lt.addLast(anho_final['artworks'], artwork)
+        lt.addLast(tecnica_final['artworks'],artwork)
 
     else:
         tecnica_final = newTecnica(tecnica, artwork)
+        lt.addLast(tecnica_final['artworks'],artwork)
         mp.put(tecnicas, tecnica, tecnica_final)
 
 
 def newTecnica(tecnica, artwork):
-    entry = {'Tecnica': None, 'Dates': None}
+    entry = {'Tecnica': None, 'artworks': None}
     entry['Tecnica'] = tecnica
-    entry['Dates'] = mp.newMap(100, maptype='PROBING',
-                               loadfactor=2.0,
-                               comparefunction=compareMapDate)
-    anhos = entry['Dates']
-    if artwork['Date'] != '':
-        anho = artwork['Date']
-    else:
-        anho = 'Unknown'
-    anho_final = newAnho(anho)
-    lt.addLast(anho_final['artworks'], artwork)
-    mp.put(anhos, anho, anho_final)
-    return entry
-
-
-def newAnho(anho):
-    entry = {'Date': '', 'artworks': None}
-    entry['Date'] = anho
     entry['artworks'] = lt.newList('ARRAY_LIST')
     return entry
+
 
 # Funciones para creacion de datos
 
 # Funciones de consulta
+
+def reqlab(catalog,numObras,medio):
+    tecnicas=catalog['Medium']
+    entry = mp.get(tecnicas, medio)
+    tecnica_final=me.getValue(entry)
+    sublist=tecnica_final['artworks'].copy()
+    sortedList=sm.sort(sublist,compareListDate)
+    listaCorta=lt.subList(sortedList,1,numObras)
+    return listaCorta
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -130,12 +112,10 @@ def compareMapMedium(keyMedium, medium):
         return -1
 
 
-def compareMapDate(keyDate, date):
-    dateEntry = me.getValue(date)
-    # print(dateEntry['Date'])
-    if keyDate == (dateEntry['Date']):
-        return 0
-    elif int(keyDate) > int(dateEntry['Date']):
+def compareListDate(artwork1, artwork2):
+    fechaObra1=artwork1['Date']
+    fechaObra2=artwork2['Date']
+    if fechaObra1<fechaObra2:
         return 1
     else:
         return 0

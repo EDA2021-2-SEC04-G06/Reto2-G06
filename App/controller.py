@@ -49,3 +49,6 @@ def loadArtworks(catalog):
 # Funciones de ordenamiento
 
 # Funciones de consulta sobre el catálogo
+
+def reqlab(catalog,numObras,medio):
+    return model.reqlab(catalog,numObras,medio)

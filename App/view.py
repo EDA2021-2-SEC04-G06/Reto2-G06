@@ -44,10 +44,19 @@ def loadData(catalog):
 
 
 def printMenu():
-    print("Bienvenido")
+    print("\nBienvenido")
     print("1- Cargar información en el catálogo")
     print("2- Numero de obras mas antiguas para un medio especifico")
 
+def printResultadoLab(resultado):
+    size=lt.size(resultado)
+    i=1
+    while i<=size:
+        obra=lt.getElement(resultado,i)
+        titulo=obra['Title']
+        fecha=obra['Date']
+        print(str(i)+". Titulo: "+titulo+", Fecha: "+fecha)
+        i+=1
 
 catalog = None
 
@@ -64,9 +73,11 @@ while True:
         print(catalog['Medium'])
 
     elif int(inputs[0]) == 2:
-        numObras = int(input('Numero de obras mas antiguas a buscar: '))
+        numObras = int(input('\nNumero de obras mas antiguas a buscar: '))
         medio = input('Medio especifico: ')
-
+        resultado = controller.reqlab(catalog,numObras,medio)
+        print("\nCantidad de Obras para "+ str(medio) + ": "+str(numObras))
+        printResultadoLab(resultado)
         pass
 
     else:
