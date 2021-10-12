@@ -47,6 +47,7 @@ def printMenu():
     print("\nBienvenido")
     print("1- Cargar información en el catálogo")
     print("2- Numero de obras mas antiguas para un medio especifico")
+    print("3- Obras por Nacionalidad especifica")
 
 def printResultadoLab(resultado):
     size=lt.size(resultado)
@@ -70,7 +71,7 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         loadData(catalog)
-        print(catalog['Medium'])
+        print(catalog['Nationality'])
 
     elif int(inputs[0]) == 2:
         numObras = int(input('\nNumero de obras mas antiguas a buscar: '))
@@ -78,6 +79,11 @@ while True:
         resultado = controller.reqlab(catalog,numObras,medio)
         print("\nCantidad de Obras para "+ str(medio) + ": "+str(numObras))
         printResultadoLab(resultado)
+
+    elif int(inputs[0]) == 3:
+        nacionalidad=input('Ingrese una nacionalidad: ')
+        resultado=controller.req2lab(catalog, nacionalidad)
+        print(resultado)
         pass
 
     else:

@@ -43,24 +43,35 @@ los mismos.
 
 def newCatalog():
     catalog = {'artworks': None,
+                'artists':None,
                'Medium': None,
-               'Date': None}
+               'Nationality': None}
 
     catalog['artworks'] = lt.newList('ARRAY_LIST')
+
+    catalog['artists'] =lt.newList('ARRAY_LIST',cmpfunction=cmpConstituentID)
 
     catalog['Medium'] = mp.newMap(200,
                                   maptype='CHAINING',
                                   loadfactor=4.0,
                                   comparefunction=compareMapMedium)
 
+    catalog['Nationality'] = mp.newMap(200,maptype='CHAINING', 
+                                  loadfactor=4.0,
+                                   comparefunction=compareMapNationality)
+
     return catalog
 
 # Funciones para agregar informacion al catalogo
+
+def addArtists(catalog, artist):
+    lt.addLast(catalog['artists'],artist)
 
 
 def addArtworks(catalog, artwork):
     lt.addLast(catalog['artworks'], artwork)
     tecnicas = catalog['Medium']
+    nacionalidades = catalog['Nationality']
     if artwork['Medium'] != '':
         tecnica = artwork['Medium']
     else:
@@ -73,15 +84,47 @@ def addArtworks(catalog, artwork):
         lt.addLast(tecnica_final['artworks'],artwork)
 
     else:
-        tecnica_final = newTecnica(tecnica, artwork)
+        tecnica_final = newTecnica(tecnica)
         lt.addLast(tecnica_final['artworks'],artwork)
         mp.put(tecnicas, tecnica, tecnica_final)
 
 
-def newTecnica(tecnica, artwork):
+    artistas = str(artwork['ConstituentID'])
+    artistas = artistas[1:len(artistas)-1]
+    artistas = artistas.split(',')
+    for artista in artistas:
+        artista=artista.strip()
+        posartista = lt.isPresent(catalog['artists'], artista)
+        if posartista > 0:
+            artista = lt.getElement(catalog['artists'], posartista)
+            nacionalidad=artista['Nationality']
+            if nacionalidad == "":
+                nacionalidad = 'Nationality unknown'
+        else:
+            nacionalidad = 'Nationality unknown'
+
+    existNacionalidad=mp.contains(nacionalidades, nacionalidad)
+
+    if existNacionalidad:
+        entry_2=mp.get(nacionalidades, nacionalidad)
+        nacionalidad_final=me.getValue(entry_2)
+        lt.addLast(nacionalidad_final['artworks'],artwork)
+
+    else:
+        nacionalidad_final = newNationality(nacionalidad)
+        lt.addLast(nacionalidad_final['artworks'],artwork)
+        mp.put(nacionalidades, nacionalidad, nacionalidad_final)
+
+def newTecnica(tecnica):
     entry = {'Tecnica': None, 'artworks': None}
     entry['Tecnica'] = tecnica
     entry['artworks'] = lt.newList('ARRAY_LIST')
+    return entry
+
+def newNationality(nacionalidad):
+    entry={'Nationality':None, 'artworks': None}
+    entry['Nationality']=nacionalidad
+    entry['artworks']=lt.newList('ARRAY_LIST')
     return entry
 
 
@@ -98,9 +141,29 @@ def reqlab(catalog,numObras,medio):
     listaCorta=lt.subList(sortedList,1,numObras)
     return listaCorta
 
+def reqlab2(catalog,nacionalidad):
+    nacionalidades=catalog['Nationality']
+    entry=mp.get(nacionalidades,nacionalidad)
+    nacionalidad_final=me.getValue(entry)
+    sublist=nacionalidad_final['artworks'].copy()
+    tamanho=lt.size(sublist)
+    return tamanho
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
+def cmpConstituentID(id1, lista):
+    if id1 in str(lista['ConstituentID']):
+        return 0
+    return -1
+
+def compareMapNationality(keyNationality, nationality):
+    natentry=me.getKey(nationality)
+    if keyNationality == natentry:
+        return 0
+    elif keyNationality > natentry:
+        return 1
+    else:
+        return -1
 
 def compareMapMedium(keyMedium, medium):
     medentry = me.getKey(medium)
