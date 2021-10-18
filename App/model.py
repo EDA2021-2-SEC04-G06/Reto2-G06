@@ -44,12 +44,17 @@ los mismos.
 def newCatalog():
     catalog = {'artworks': None,
                 'artists':None,
-               'Medium': None,
-               'Nationality': None}
+                'Nacimientos':None,
+                'Medium': None,
+                'Nationality': None}
 
     catalog['artworks'] = lt.newList('ARRAY_LIST')
 
     catalog['artists'] =lt.newList('ARRAY_LIST',cmpfunction=cmpConstituentID)
+
+    catalog['Nacimientos'] = mp.newMap(maptype='CHAINING',
+                                loadfactor=4.0,
+                                comparefunction=compareMapBeginDate)
 
     catalog['Medium'] = mp.newMap(200,
                                   maptype='CHAINING',
@@ -66,6 +71,22 @@ def newCatalog():
 
 def addArtists(catalog, artist):
     lt.addLast(catalog['artists'],artist)
+    nacimientos = catalog['Nacimientos']
+    nacimiento = artist['BeginDate']
+    if nacimiento == '':
+        nacimiento = 0
+
+    existNacimiento = mp.contains(nacimientos,nacimiento)
+
+    if existNacimiento:
+        entry=mp.get(nacimientos,nacimiento)
+        nacimiento_final=me.getValue(entry)
+        lt.addLast(nacimiento_final['artists'],artist)
+
+    else:
+        nacimiento_final=newNacimiento(nacimiento)
+        lt.addLast(nacimiento_final['artists'],artist)
+        mp.put(nacimientos, nacimiento, nacimiento_final)
 
 
 def addArtworks(catalog, artwork):
@@ -115,6 +136,11 @@ def addArtworks(catalog, artwork):
         lt.addLast(nacionalidad_final['artworks'],artwork)
         mp.put(nacionalidades, nacionalidad, nacionalidad_final)
 
+def newNacimiento(nacimiento):
+    entry = {'artists': None}
+    entry['artists'] = lt.newList('ARRAY_LIST')
+    return entry
+
 def newTecnica(tecnica):
     entry = {'Tecnica': None, 'artworks': None}
     entry['Tecnica'] = tecnica
@@ -131,6 +157,45 @@ def newNationality(nacionalidad):
 # Funciones para creacion de datos
 
 # Funciones de consulta
+
+def rangoArtistas(catalog, anho_inicio, anho_final):
+    nacimientos=catalog['Nacimientos']
+    lista_anhos=mp.keySet(nacimientos)
+    sorted_list=sm.sort(lista_anhos,cmpBeginDate)
+    final_lista = int(lt.size(sorted_list))
+    i = 1
+    while i <= final_lista:
+        fecha = lt.getElement(sorted_list, i)
+        if int(fecha) >= int(anho_inicio):
+            pos_inicial = i
+            i += final_lista
+        i += 1
+
+    j = 1
+    while j <= final_lista:
+        fecha = lt.getElement(sorted_list, j)
+        if int(fecha) <= int(anho_final):
+            pos_final = j
+        j += 1
+
+    sorted_list_2 = lt.subList(sorted_list, pos_inicial, pos_final-pos_inicial+1)
+
+    cantidad=0
+
+    lista_final={'artistas':None}
+    lista_final['artistas']=lt.newList('ARRAY_LIST')
+
+    for fecha in lt.iterator(sorted_list_2):
+        artistas=mp.get(nacimientos,fecha)
+        lista=artistas['value']
+        artista=lista['artists']
+        size=lt.size(lista['artists'])
+        for artista_1 in lt.iterator(artista):
+            lt.addLast(lista_final['artistas'],artista_1)
+
+        cantidad+=size
+
+    return lista_final['artistas'], cantidad
 
 def reqlab(catalog,numObras,medio):
     tecnicas=catalog['Medium']
@@ -155,6 +220,20 @@ def cmpConstituentID(id1, lista):
     if id1 in str(lista['ConstituentID']):
         return 0
     return -1
+
+def cmpBeginDate(beginDate1,begindate2):
+    if beginDate1<begindate2:
+        return 1
+    else:
+        return 0
+
+def compareMapBeginDate(keyNacimiento,nacimiento):
+    nacentry=me.getKey(nacimiento)
+    if keyNacimiento == nacentry:
+        return 0
+    else:
+        return -1
+
 
 def compareMapNationality(keyNationality, nationality):
     natentry=me.getKey(nationality)
