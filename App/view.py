@@ -135,6 +135,143 @@ def ultimos3Artistas(lista, size):
     else:
         return None
 
+def printprimeros3artistasyobras(lista, size):
+    if size >= 3:
+        print("\nLas primeras 3 Obras son: ")
+        i = 1
+        while i <= 3:
+            obra = lt.getElement(lista, i)
+            titulo = obra['Title']
+            fecha = obra['Date']
+            medio = obra['Medium']
+            dimensiones = obra['Dimensions']
+            cadenaArtista = ""
+            for artistas in lt.iterator(obra['artists']):
+                artista = artistas['DisplayName']
+                if cadenaArtista == "":
+                    cadenaArtista += artista
+                else:
+                    cadenaArtista += ", "+artista
+            if fecha == "":
+                fecha = "Unknown"
+            if medio == "":
+                medio = "Unknown"
+            if dimensiones == "":
+                dimensiones = 'Unknown'
+            if cadenaArtista == "":
+                cadenaArtista = "Unknown"
+
+            print(str(i)+". " + "Titulo: " + titulo + ", Artista(s): " + cadenaArtista + ", Fecha: "
+                  + fecha + ", Medio: " + medio
+                  + ", Dimensiones: " + dimensiones)
+            i += 1
+        print('...')
+
+    elif size >= 1:
+        if size == 1:
+            print("\nLa primera obra es: ")
+        if size == 2:
+            print("\nLas primeras 2 Artistas son: ")
+        i = 1
+        while i <= size:
+            obra = lt.getElement(lista, i)
+            titulo = obra['Title']
+            fecha = obra['Date']
+            medio = obra['Medium']
+            dimensiones = obra['Dimensions']
+            cadenaArtista = ""
+            for artistas in lt.iterator(obra['artists']):
+                artista = artistas['DisplayName']
+                if cadenaArtista == "":
+                    cadenaArtista += artista
+                else:
+                    cadenaArtista += ", "+artista
+
+            if fecha == "":
+                fecha = "Unknown"
+            if medio == "":
+                medio = "Unknown"
+            if dimensiones == "":
+                dimensiones = 'Unknown'
+            if cadenaArtista == "":
+                cadenaArtista = "Unknown"
+
+            print(str(i)+". " + "Titulo:" + titulo + ", Artista(s): " + cadenaArtista + ", Fecha: "
+                  + fecha + ", Medio: " + medio
+                  + ", Dimensiones: " + dimensiones)
+            i += 1
+        print('...')
+
+    else:
+        return None
+
+def printUltimos3ArtistasyObras(lista, size):
+    if size >= 3:
+        print("Los últimos 3 Artistas son: ")
+        i = size-2
+        while i <= size:
+            obra = lt.getElement(lista, i)
+            titulo = obra['Title']
+            fecha = obra['Date']
+            medio = obra['Medium']
+            dimensiones = obra['Dimensions']
+            cadenaArtista = ""
+            for artistas in lt.iterator(obra['artists']):
+                artista = artistas['DisplayName']
+                if cadenaArtista == "":
+                    cadenaArtista += artista
+                else:
+                    cadenaArtista += ", "+artista
+
+            if fecha == "":
+                fecha = "Unknown"
+            if medio == "":
+                medio = "Unknown"
+            if dimensiones == "":
+                dimensiones = 'Unknown'
+            if cadenaArtista == "":
+                cadenaArtista = "Unknown"
+
+            print(str(i)+". " + "Titulo:" + titulo + ", Artista(s): " + cadenaArtista + ", Fecha: "
+                  + fecha + ", Medio: " + medio
+                  + ", Dimensiones: " + dimensiones)
+            i += 1
+    elif size >= 1:
+        if size == 1:
+            print("La última Obra es: ")
+        if size == 2:
+            print("Los últimos 2 Artistas son: ")
+        i = 1
+        while i <= size:
+            obra = lt.getElement(lista, i)
+            titulo = obra['Title']
+            fecha = obra['Date']
+            medio = obra['Medium']
+            dimensiones = obra['Dimensions']
+            cadenaArtista = ""
+            for artistas in lt.iterator(obra['artists']):
+                artista = artistas['DisplayName']
+                if cadenaArtista == "":
+                    cadenaArtista += artista
+                else:
+                    cadenaArtista += ", "+artista
+
+            if fecha == "":
+                fecha = "Unknown"
+            if medio == "":
+                medio = "Unknown"
+            if dimensiones == "":
+                dimensiones = 'Unknown'
+            if cadenaArtista == "":
+                cadenaArtista = "Unknown"
+
+            print(str(i)+". " + "Titulo:" + titulo + ", Artista(s): " + cadenaArtista + ", Fecha: "
+                  + fecha + ", Medio: " + medio
+                  + ", Dimensiones: " + dimensiones)
+            i += 1
+    else:
+        None
+
 def printResultadoLab(resultado):
     size=lt.size(resultado)
     i=1
@@ -158,6 +295,7 @@ while True:
         catalog = initCatalog()
         loadData(catalog)
 
+
     elif int(inputs[0]) == 2:
         anho_inicial =input("\nIngrese el año inicial: ")
         anho_final = input("Ingrese el año final: ")
@@ -166,12 +304,15 @@ while True:
         printPrimeros3Artistas(resultado[0], resultado[1])
         ultimos3Artistas(resultado[0],resultado[1])
         
-
-
     elif int(inputs[0]) == 3:
-        nacionalidad=input('Ingrese una nacionalidad: ')
-        resultado=controller.req2lab(catalog, nacionalidad)
-        print(resultado)
+        anho_inicial = input('\nIngrese la Fecha Inicial (AAAA-MM-DD): ')
+        anho_final = input('Ingrese la Fecha Final (AAAA-MM-DD): ')
+        resultado = controller.rangoAcquired(catalog, anho_inicial, anho_final)
+        size=lt.size(resultado[0]['artworks'])
+        print('\nHay '+str(size)+' obras únicas entre '+anho_inicial +' y '+anho_final)
+        print('Obras adquiridas por Purchase: ' + str(resultado[1]))
+        printprimeros3artistasyobras(resultado[0]['artworks'], size)
+        printUltimos3ArtistasyObras(resultado[0]['artworks'], size)
 
     elif int(inputs[0]) == 4:
         numObras = int(input('\nNumero de obras mas antiguas a buscar: '))
@@ -179,6 +320,11 @@ while True:
         resultado = controller.reqlab(catalog,numObras,medio)
         print("\nCantidad de Obras para "+ str(medio) + ": "+str(numObras))
         printResultadoLab(resultado)
+
+    elif int(inputs[0]) == 5:
+        nacionalidad=input('Ingrese una nacionalidad: ')
+        resultado=controller.req2lab(catalog, nacionalidad)
+        print(resultado)
         pass
 
     else:

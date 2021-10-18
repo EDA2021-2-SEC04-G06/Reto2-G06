@@ -60,6 +60,9 @@ def loadArtworks(catalog):
 def rangoArtistas(catalog, anho_inicial, anho_final):
     return model.rangoArtistas(catalog, anho_inicial, anho_final)
 
+def rangoAcquired(catalog, fecha_inicial, fecha_final):
+    return model.rangoAcquired(catalog, fecha_inicial,fecha_final)
+
 def reqlab(catalog,numObras,medio):
     return model.reqlab(catalog,numObras,medio)
 

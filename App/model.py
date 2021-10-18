@@ -27,10 +27,13 @@
 
 '''from typing_extensions import TypeVarTuple'''
 import config as cf
+from os import times
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
+import time
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import mergesort as sm
+from datetime import datetime
 assert cf
 
 """
@@ -45,6 +48,7 @@ def newCatalog():
     catalog = {'artworks': None,
                 'artists':None,
                 'Nacimientos':None,
+                'FechaAdquirida':None,
                 'Medium': None,
                 'Nationality': None}
 
@@ -55,6 +59,10 @@ def newCatalog():
     catalog['Nacimientos'] = mp.newMap(maptype='CHAINING',
                                 loadfactor=4.0,
                                 comparefunction=compareMapBeginDate)
+
+    catalog['FechaAdquirida'] = mp.newMap(maptype='CHAINING',
+                                    loadfactor=4.0,
+                                    comparefunction=compareMapDateAcquired)
 
     catalog['Medium'] = mp.newMap(200,
                                   maptype='CHAINING',
@@ -93,6 +101,8 @@ def addArtworks(catalog, artwork):
     lt.addLast(catalog['artworks'], artwork)
     tecnicas = catalog['Medium']
     nacionalidades = catalog['Nationality']
+    fechas_adquiridas = catalog['FechaAdquirida']
+
     if artwork['Medium'] != '':
         tecnica = artwork['Medium']
     else:
@@ -136,10 +146,67 @@ def addArtworks(catalog, artwork):
         lt.addLast(nacionalidad_final['artworks'],artwork)
         mp.put(nacionalidades, nacionalidad, nacionalidad_final)
 
+    fechaAdquirida=artwork['DateAcquired']
+    if len(fechaAdquirida) != 10:
+        fechaAdquirida = str(datetime.today())
+
+    existFecha = mp.contains(fechas_adquiridas,fechaAdquirida)
+
+    if existFecha:
+        entry_3 = mp.get(fechas_adquiridas,fechaAdquirida)
+        fecha_final=me.getValue(entry_3)
+        anhadir=newFecha2(catalog,artwork)
+        lt.addLast(fecha_final['artworks'],anhadir)
+
+    else:
+        fecha_final = newFecha(catalog, artwork)
+        mp.put(fechas_adquiridas,fechaAdquirida,fecha_final)
+
 def newNacimiento(nacimiento):
     entry = {'artists': None}
     entry['artists'] = lt.newList('ARRAY_LIST')
     return entry
+
+def newFecha(catalog,artwork):
+    entry = {'artworks':None}
+    entry['artworks']=lt.newList('ARRAY_LIST')
+    artworkList={'Title':artwork['Title'], 'artists':None, 'DateAcquired':artwork['DateAcquired'], 
+                'Medium': artwork['Medium'], 'Dimensions':artwork['Dimensions'], 'CreditLine':artwork['CreditLine'],
+                'Date':artwork['Date']}
+    artworkList['artists']=lt.newList('ARRAY_LIST')
+    artistas = str(artwork['ConstituentID'])
+    artistas = artistas[1:len(artistas)-1]
+    artistas = artistas.split(',')
+    for artista in artistas:
+        artista=artista.strip()
+        posartista = lt.isPresent(catalog['artists'], artista)
+        if posartista > 0:
+            artista = lt.getElement(catalog['artists'], posartista)
+        else:
+            artista = {'ConsitutentID':artista,'DisplayName':'Unknown'}
+        lt.addLast(artworkList['artists'],artista)
+    lt.addLast(entry['artworks'],artworkList)
+    return entry
+    
+def newFecha2(catalog,artwork):
+    artworkList={'Title':artwork['Title'], 'artists':None, 'DateAcquired':artwork['DateAcquired'], 
+                'Medium': artwork['Medium'], 'Dimensions':artwork['Dimensions'], 'CreditLine':artwork['CreditLine'],
+                'Date':artwork['Date']}
+    artworkList['artists']=lt.newList('ARRAY_LIST')
+    artistas = str(artwork['ConstituentID'])
+    artistas = artistas[1:len(artistas)-1]
+    artistas = artistas.split(',')
+    for artista in artistas:
+        artista=artista.strip()
+        posartista = lt.isPresent(catalog['artists'], artista)
+        if posartista > 0:
+            artista = lt.getElement(catalog['artists'], posartista)
+        else:
+            artista = {'ConsitutentID':artista,'DisplayName':'Unknown'}
+        lt.addLast(artworkList['artists'],artista)
+    return artworkList
+
+
 
 def newTecnica(tecnica):
     entry = {'Tecnica': None, 'artworks': None}
@@ -197,6 +264,75 @@ def rangoArtistas(catalog, anho_inicio, anho_final):
 
     return lista_final['artistas'], cantidad
 
+def rangoAcquired(catalog, fecha_inicial, fecha_final):
+    FechasAdquiridas=catalog['FechaAdquirida']
+    lista = mp.keySet(FechasAdquiridas)
+    sortedList=sm.sort(lista,cmpArtworkByDateAcquired)
+    final_lista = int(lt.size(sortedList))
+
+    i = 1
+    while i <= final_lista:
+        fecha_adquirda = lt.getElement(sortedList, i)
+        anho_adquirido = float(fecha_adquirda[0:4])
+        mes_adquirido = float(fecha_adquirda[5:7])
+        dia_adquirido = float(fecha_adquirda[8:10])
+        anho_inicial = float(fecha_inicial[0:4])
+        mes_inicial = float(fecha_inicial[5:7])
+        dia_inicial = float(fecha_inicial[8:10])
+        if anho_adquirido > anho_inicial:
+            pos_inicial = i
+            i += final_lista
+        elif anho_adquirido == anho_inicial:
+            if mes_adquirido > mes_inicial:
+                pos_inicial = i
+                i += final_lista
+            elif mes_adquirido == mes_inicial:
+                if dia_adquirido >= dia_inicial:
+                    pos_inicial = i
+                    i += final_lista
+        i += 1
+
+    j = 1
+    while j <= final_lista:
+        fecha_adquirda =lt.getElement(sortedList, j)
+        anho_adquirido = float(fecha_adquirda[0:4])
+        mes_adquirido = float(fecha_adquirda[5:7])
+        dia_adquirido = float(fecha_adquirda[8:10])
+        anho_final = float(fecha_final[0:4])
+        mes_final = float(fecha_final[5:7])
+        dia_final = float(fecha_final[8:10])
+        if anho_adquirido < anho_final:
+            pos_final = j
+        elif anho_adquirido == anho_final:
+            if mes_adquirido < mes_final:
+                pos_final = j
+            elif mes_adquirido == mes_final:
+                if dia_adquirido <= dia_final:
+                    pos_final = j
+        j += 1
+
+    sorted_list2 = lt.subList(sortedList, pos_inicial, pos_final-pos_inicial+1)
+
+    lista_final={'artworks':None}
+    lista_final['artworks']=lt.newList('ARRAY_LIST')
+
+    contadorPruchase=0
+
+    for fecha in lt.iterator(sorted_list2):
+        obras=mp.get(FechasAdquiridas,fecha)
+        lista=obras['value']
+        obra=lista['artworks']
+        for obra_1 in lt.iterator(obra):
+            lt.addLast(lista_final['artworks'],obra_1)
+            tipoCompra = obra_1['CreditLine']
+            if "Purchase" in tipoCompra:
+                contadorPruchase += 1
+            elif 'purchase' in tipoCompra:
+                contadorPruchase += 1
+
+    return lista_final, contadorPruchase
+
+
 def reqlab(catalog,numObras,medio):
     tecnicas=catalog['Medium']
     entry = mp.get(tecnicas, medio)
@@ -234,6 +370,13 @@ def compareMapBeginDate(keyNacimiento,nacimiento):
     else:
         return -1
 
+def compareMapDateAcquired(keyDateAcquired,dateAcquired):
+    datentry=me.getKey(dateAcquired)
+    if datentry == keyDateAcquired:
+        return 0
+    else:
+        return -1
+
 
 def compareMapNationality(keyNationality, nationality):
     natentry=me.getKey(nationality)
@@ -252,6 +395,30 @@ def compareMapMedium(keyMedium, medium):
         return 1
     else:
         return -1
+
+def cmpArtworkByDateAcquired(fecha_artwork1, fecha_artwork2):
+    anho_artwork1 = float(fecha_artwork1[:4])
+    mes_artwork1 = float(fecha_artwork1[5:7])
+    dia_artwork1 = float(fecha_artwork1[8:10])
+    anho_artwork2 = float(fecha_artwork2[:4])
+    mes_artwork2 = float(fecha_artwork2[5:7])
+    dia_artwork2 = float(fecha_artwork2[8:10])
+    if fecha_artwork1 == fecha_artwork2:
+        return 0
+    elif anho_artwork1 < anho_artwork2:
+        return 1
+    elif anho_artwork1 > anho_artwork2:
+        return 0
+    elif anho_artwork1 == anho_artwork2:
+        if mes_artwork1 < mes_artwork2:
+            return 1
+        elif mes_artwork1 > mes_artwork2:
+            return 0
+        elif dia_artwork1 == mes_artwork2:
+            if dia_artwork1 < dia_artwork2:
+                return 1
+            elif dia_artwork1 > dia_artwork2:
+                return 0
 
 
 def compareListDate(artwork1, artwork2):
