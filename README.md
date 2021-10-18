@@ -1,4 +1,4 @@
-Req 3. Nicolas Camargo - 
+Req 3. Nicolas Camargo - 202020782 - n.camargop@uniandes.edu.co
 
 Req 4. Juan Manuel Pérez - 202021827 - Jm.perezs1@uniandes.edu.co
 
