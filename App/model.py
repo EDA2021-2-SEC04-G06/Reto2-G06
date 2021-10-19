@@ -51,7 +51,8 @@ def newCatalog():
                'Nacimientos': None,
                'FechaAdquirida': None,
                'Medium': None,
-               'Nationality': None}
+               'Nationality': None,
+               'Departamentos': None}
 
     catalog['artworks'] = lt.newList('ARRAY_LIST')
 
@@ -73,6 +74,9 @@ def newCatalog():
     catalog['Nationality'] = mp.newMap(200, maptype='CHAINING',
                                        loadfactor=4.0,
                                        comparefunction=compareMapNationality)
+
+    catalog['Departamentos'] = mp.newMap(200, maptype='CHAINING',
+                                         loadfactor=4.0)
 
     return catalog
 
@@ -546,3 +550,39 @@ def cmpObrasNacionalidad(nacionalidad1, nacionalidad2):
 
 
 # Funciones de ordenamiento
+
+
+def req5reto(catalog, depto):
+    catalogDepts = catalog['Departamentos']
+    totalObras = 0
+    pesoTotal = 0
+    estimadoUSD = 0
+
+    for each in catalog['artworks']['elements']:
+        if each['Department'] == depto:
+            totalObras += 1
+            title = each['Title']
+            clasf = each['Classification']
+            date = each['Date']
+            medium = each['Medium']
+            dim = each['Dimensions']
+            mp.put(catalogDepts, depto, [title, clasf, date, medium, dim])
+
+            circum = each['Circumference (cm)']
+            depth = each['Depth (cm)']
+            diameter = each['Diameter (cm)']
+            height = each['Height (cm)']
+            length = each['Length (cm)']
+            weight = each['Weight (kg)']
+            width = each['Width (cm)']
+            seath = each['Seat Height (cm)']
+
+            if weight != '':
+                pesoTotal += weight
+
+            if length != '':
+                estimadoUSD += (72/int(weight)) + (int(length) * int(width)
+                                                   * int(height)*int(diameter)*int(depth)*int(circum)*int(seath))
+
+    print(estimadoUSD)
+    # Circumference (cm),Depth (cm),Diameter (cm),Height (cm),Length (cm),Weight (kg),Width (cm),Seat Height (cm)
