@@ -31,21 +31,25 @@ El controlador se encarga de mediar entre la vista y el modelo.
 
 # Inicialización del Catálogo de libros
 
+
 def initCatalog():
     catalog = model.newCatalog()
     return catalog
 
 # Funciones para la carga de datos
 
+
 def loadData(catalog):
     loadArtists(catalog)
     loadArtworks(catalog)
+
 
 def loadArtists(catalog):
     artistsfile = cf.data_dir + 'Artists-utf8-small.csv'
     input_file = csv.DictReader(open(artistsfile, encoding='utf-8'))
     for artist in input_file:
         model.addArtists(catalog, artist)
+
 
 def loadArtworks(catalog):
     artworksfile = cf.data_dir + 'Artworks-utf8-small.csv'
@@ -57,17 +61,26 @@ def loadArtworks(catalog):
 
 # Funciones de consulta sobre el catálogo
 
+
 def rangoArtistas(catalog, anho_inicial, anho_final):
     return model.rangoArtistas(catalog, anho_inicial, anho_final)
 
+
 def rangoAcquired(catalog, fecha_inicial, fecha_final):
-    return model.rangoAcquired(catalog, fecha_inicial,fecha_final)
+    return model.rangoAcquired(catalog, fecha_inicial, fecha_final)
+
 
 def obrasPorNacionalidad(catalog):
     return model.obrasPorNacionalidad(catalog)
 
-def reqlab(catalog,numObras,medio):
-    return model.reqlab(catalog,numObras,medio)
+
+def reqlab(catalog, numObras, medio):
+    return model.reqlab(catalog, numObras, medio)
+
 
 def req2lab(catalog, nacionalidad):
     return model.reqlab2(catalog, nacionalidad)
+
+
+def req3reto(catalog, artista):
+    return model.req3reto(catalog, artista)

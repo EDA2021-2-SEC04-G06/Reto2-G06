@@ -50,7 +50,7 @@ def printMenu():
     print("2- Listar Cronologicamente los artistas en un rango")
     print("3- Listar Cronologicamente las adquisiciones")
     print("4- Clasificar obra de un artista por tecnica")
-    print("5- Clasificar obras por la nacionalidad de sus crreadores")
+    print("5- Clasificar obras por la nacionalidad de sus creadores")
     print("6- Transportar obras de un departamento")
 
 
@@ -96,6 +96,7 @@ def printPrimeros3Artistas(lista, size):
     else:
         return None
 
+
 def ultimos3Artistas(lista, size):
     if size >= 3:
         print("Los últimos 3 Artistas son: ")
@@ -134,6 +135,7 @@ def ultimos3Artistas(lista, size):
                   + ", Nacionalidad: " + nacionalidad + ", Genero: " + genero)
     else:
         return None
+
 
 def printprimeros3artistasyobras(lista, size):
     if size >= 3:
@@ -205,6 +207,7 @@ def printprimeros3artistasyobras(lista, size):
     else:
         return None
 
+
 def printUltimos3ArtistasyObras(lista, size):
     if size >= 3:
         print("Los últimos 3 Artistas son: ")
@@ -272,6 +275,7 @@ def printUltimos3ArtistasyObras(lista, size):
     else:
         None
 
+
 def printTOP10(lista):
     size = lt.size(lista)
     if size > 10:
@@ -284,6 +288,7 @@ def printTOP10(lista):
             conteo = nacionalidades['contador']
             print(str(i)+"." + nacionalidad + ': ' + str(conteo))
             i += 1
+
 
 def printPrimeras3ObrasNacionalidad(lista):
     primeraNacionalidad = lt.getElement(lista, 1)
@@ -308,6 +313,7 @@ def printPrimeras3ObrasNacionalidad(lista):
               + ", Dimensiones: " + dimensiones)
         i += 1
     print('...')
+
 
 def printUltimas3obrasNacionalidad(lista):
     primeraNacionalidad = lt.getElement(lista, 1)
@@ -334,15 +340,33 @@ def printUltimas3obrasNacionalidad(lista):
 
 catalog = None
 
+
 def printResultadoLab(resultado):
-    size=lt.size(resultado)
-    i=1
-    while i<=size:
-        obra=lt.getElement(resultado,i)
-        titulo=obra['Title']
-        fecha=obra['Date']
+    size = lt.size(resultado)
+    i = 1
+    while i <= size:
+        obra = lt.getElement(resultado, i)
+        titulo = obra['Title']
+        fecha = obra['Date']
         print(str(i)+". Titulo: "+titulo+", Fecha: "+fecha)
-        i+=1
+        i += 1
+
+
+def printprimeros3(resultado):
+    i = 0
+    while i <= 2:
+        print('\n'+str(resultado[i]))
+        i += 1
+
+
+def printultimos3(resultado):
+    i = 0
+    n = 0
+    while i <= 2:
+        print('\n'+str(resultado[n-1]))
+        i += 1
+        n -= 1
+
 
 catalog = None
 
@@ -356,41 +380,47 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         loadData(catalog)
-        
-        print((((mp.get(catalog["Nationality"],'American'))['value'])['artworks']))
 
+        print(
+            (((mp.get(catalog["Nationality"], 'American'))['value'])['artworks']))
 
     elif int(inputs[0]) == 2:
-        anho_inicial =input("\nIngrese el año inicial: ")
+        anho_inicial = input("\nIngrese el año inicial: ")
         anho_final = input("Ingrese el año final: ")
-        resultado = controller.rangoArtistas(catalog,anho_inicial,anho_final)
-        print('\nHay '+str(resultado[1])+' artistas nacidos entre '+str(anho_inicial)+" y "+str(anho_final))
+        resultado = controller.rangoArtistas(catalog, anho_inicial, anho_final)
+        print('\nHay '+str(resultado[1])+' artistas nacidos entre ' +
+              str(anho_inicial)+" y "+str(anho_final))
         printPrimeros3Artistas(resultado[0], resultado[1])
-        ultimos3Artistas(resultado[0],resultado[1])
-        
+        ultimos3Artistas(resultado[0], resultado[1])
+
     elif int(inputs[0]) == 3:
         anho_inicial = input('\nIngrese la Fecha Inicial (AAAA-MM-DD): ')
         anho_final = input('Ingrese la Fecha Final (AAAA-MM-DD): ')
         resultado = controller.rangoAcquired(catalog, anho_inicial, anho_final)
-        size=lt.size(resultado[0]['artworks'])
-        print('\nHay '+str(size)+' obras únicas entre '+anho_inicial +' y '+anho_final)
+        size = lt.size(resultado[0]['artworks'])
+        print('\nHay '+str(size)+' obras únicas entre ' +
+              anho_inicial + ' y '+anho_final)
         print('Obras adquiridas por Purchase: ' + str(resultado[1]))
         printprimeros3artistasyobras(resultado[0]['artworks'], size)
         printUltimos3ArtistasyObras(resultado[0]['artworks'], size)
 
     elif int(inputs[0]) == 4:
-        numObras = int(input('\nNumero de obras mas antiguas a buscar: '))
-        medio = input('Medio especifico: ')
-        resultado = controller.reqlab(catalog,numObras,medio)
-        print("\nCantidad de Obras para "+ str(medio) + ": "+str(numObras))
-        printResultadoLab(resultado)
+        artista = input('Ingrese el nombre del artista: ')
+        resultado = controller.req3reto(catalog, artista)
+        print('\nTotal de obras: ' + str(resultado[0]))
+        print('Total de tecnicas: ' + str(resultado[1]))
+        print('Tecnica mas usada: ' + str(resultado[2]))
+        print('\nLas primeras 3 obras son: ')
+        printprimeros3(resultado[3])
+        print('\nLas ultimas 3 obras son: ')
+        printultimos3(resultado[3])
 
     elif int(inputs[0]) == 5:
-        resultado=controller.obrasPorNacionalidad(catalog)
+        resultado = controller.obrasPorNacionalidad(catalog)
         printTOP10(resultado)
         printPrimeras3ObrasNacionalidad(resultado)
         printUltimas3obrasNacionalidad(resultado)
-        
+
         pass
 
     else:
