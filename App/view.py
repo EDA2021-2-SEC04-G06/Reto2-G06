@@ -272,6 +272,68 @@ def printUltimos3ArtistasyObras(lista, size):
     else:
         None
 
+def printTOP10(lista):
+    size = lt.size(lista)
+    if size > 10:
+        print("\nLos primeros ", str(10),
+              " paises ordenados por su número de obras son: ")
+        i = 1
+        while i <= 10:
+            nacionalidades = lt.getElement(lista, i)
+            nacionalidad = nacionalidades['Nacionalidad']
+            conteo = nacionalidades['contador']
+            print(str(i)+"." + nacionalidad + ': ' + str(conteo))
+            i += 1
+
+def printPrimeras3ObrasNacionalidad(lista):
+    primeraNacionalidad = lt.getElement(lista, 1)
+    print('\nEn el primer lugar se encuentra la nacionalidad '+primeraNacionalidad['Nacionalidad']+' con un total de ' +
+          str(primeraNacionalidad['contador'])+' obras.')
+    i = 1
+    while i <= 3:
+        obra = lt.getElement(primeraNacionalidad['artworks'], i)
+        titulo = obra['Title']
+        fecha = obra['Date']
+        medio = obra['Medium']
+        dimensiones = obra['Dimensions']
+        cadenaArtista = ''
+        for artistas in lt.iterator(obra['artists']):
+            artista = artistas['DisplayName']
+            if cadenaArtista == "":
+                cadenaArtista += artista
+            else:
+                cadenaArtista += ", "+artista
+        print(str(i)+'. '+"Titulo: " + titulo + ", Artista(s): " + cadenaArtista + ", Fecha: "
+              + fecha + ", Medio: " + medio
+              + ", Dimensiones: " + dimensiones)
+        i += 1
+    print('...')
+
+def printUltimas3obrasNacionalidad(lista):
+    primeraNacionalidad = lt.getElement(lista, 1)
+    size = lt.size(primeraNacionalidad['artworks'])
+    i = size-2
+    while i <= size:
+        obra = lt.getElement(primeraNacionalidad['artworks'], i)
+        titulo = obra['Title']
+        fecha = obra['Date']
+        medio = obra['Medium']
+        dimensiones = obra['Dimensions']
+        cadenaArtista = ''
+        for artistas in lt.iterator(obra['artists']):
+            artista = artistas['DisplayName']
+            if cadenaArtista == "":
+                cadenaArtista += artista
+            else:
+                cadenaArtista += ", "+artista
+        print(str(i)+'. '+"Titulo: " + titulo + ", Artista(s): " + cadenaArtista + ", Fecha: "
+              + fecha + ", Medio: " + medio
+              + ", Dimensiones: " + dimensiones)
+        i += 1
+
+
+catalog = None
+
 def printResultadoLab(resultado):
     size=lt.size(resultado)
     i=1
@@ -294,6 +356,8 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         loadData(catalog)
+        
+        print((((mp.get(catalog["Nationality"],'American'))['value'])['artworks']))
 
 
     elif int(inputs[0]) == 2:
@@ -322,9 +386,11 @@ while True:
         printResultadoLab(resultado)
 
     elif int(inputs[0]) == 5:
-        nacionalidad=input('Ingrese una nacionalidad: ')
-        resultado=controller.req2lab(catalog, nacionalidad)
-        print(resultado)
+        resultado=controller.obrasPorNacionalidad(catalog)
+        printTOP10(resultado)
+        printPrimeras3ObrasNacionalidad(resultado)
+        printUltimas3obrasNacionalidad(resultado)
+        
         pass
 
     else:

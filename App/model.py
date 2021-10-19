@@ -129,7 +129,7 @@ def addArtworks(catalog, artwork):
         if posartista > 0:
             artista = lt.getElement(catalog['artists'], posartista)
             nacionalidad=artista['Nationality']
-            if nacionalidad == "":
+            if nacionalidad == "" or nacionalidad=="unknown" or nacionalidad=='Unknown':
                 nacionalidad = 'Nationality unknown'
         else:
             nacionalidad = 'Nationality unknown'
@@ -139,10 +139,11 @@ def addArtworks(catalog, artwork):
     if existNacionalidad:
         entry_2=mp.get(nacionalidades, nacionalidad)
         nacionalidad_final=me.getValue(entry_2)
-        lt.addLast(nacionalidad_final['artworks'],artwork)
+        anhadir=newFecha2(catalog,artwork)
+        lt.addLast(nacionalidad_final['artworks'],anhadir)
 
     else:
-        nacionalidad_final = newNationality(nacionalidad)
+        nacionalidad_final = newNationality(catalog,artwork)
         lt.addLast(nacionalidad_final['artworks'],artwork)
         mp.put(nacionalidades, nacionalidad, nacionalidad_final)
 
@@ -214,11 +215,44 @@ def newTecnica(tecnica):
     entry['artworks'] = lt.newList('ARRAY_LIST')
     return entry
 
-def newNationality(nacionalidad):
-    entry={'Nationality':None, 'artworks': None}
-    entry['Nationality']=nacionalidad
+def newNationality(catalog,artwork):
+    entry={'artworks': None}
     entry['artworks']=lt.newList('ARRAY_LIST')
+    artworkList={'Title':artwork['Title'], 'artists':None, 
+                'Medium': artwork['Medium'], 'Dimensions':artwork['Dimensions'],
+                'Date':artwork['Date']}
+    artworkList['artists']=lt.newList('ARRAY_LIST')
+    artistas = str(artwork['ConstituentID'])
+    artistas = artistas[1:len(artistas)-1]
+    artistas = artistas.split(',')
+    for artista in artistas:
+        artista=artista.strip()
+        posartista = lt.isPresent(catalog['artists'], artista)
+        if posartista > 0:
+            artista = lt.getElement(catalog['artists'], posartista)
+        else:
+            artista = {'ConsitutentID':artista,'DisplayName':'Unknown'}
+        lt.addLast(artworkList['artists'],artista)
+    lt.addLast(entry['artworks'],artworkList)
     return entry
+
+def newnationality2(catalog,artwork):
+    artworkList={'Title':artwork['Title'], 'artists':None, 
+                'Medium': artwork['Medium'], 'Dimensions':artwork['Dimensions'],
+                'Date':artwork['Date']}
+    artworkList['artists']=lt.newList('ARRAY_LIST')
+    artistas = str(artwork['ConstituentID'])
+    artistas = artistas[1:len(artistas)-1]
+    artistas = artistas.split(',')
+    for artista in artistas:
+        artista=artista.strip()
+        posartista = lt.isPresent(catalog['artists'], artista)
+        if posartista > 0:
+            artista = lt.getElement(catalog['artists'], posartista)
+        else:
+            artista = {'ConsitutentID':artista,'DisplayName':'Unknown'}
+        lt.addLast(artworkList['artists'],artista)
+    return artworkList
 
 
 # Funciones para creacion de datos
@@ -332,6 +366,27 @@ def rangoAcquired(catalog, fecha_inicial, fecha_final):
 
     return lista_final, contadorPruchase
 
+def obrasPorNacionalidad(catalog):
+    nacionalidades=catalog['Nationality']
+    lista=mp.keySet(nacionalidades)
+    orden={'Nacionalidades':None}
+    orden['Nacionalidades']=lt.newList('ARRAY_LIST')
+    
+    for nacionalidad in lt.iterator(lista):
+        size=lt.size(((mp.get(nacionalidades,nacionalidad))['value'])['artworks'])
+        lista=mp.get(nacionalidades,nacionalidad)['value']['artworks']
+        lt.deleteElement(lista,2)
+        nacionalidadAdd={'Nacionalidad':nacionalidad, 'contador':size-1,'artworks':lista}
+
+        lt.addLast(orden['Nacionalidades'],nacionalidadAdd)
+        
+
+    sortedList=sm.sort(orden['Nacionalidades'],cmpObrasNacionalidad)
+
+    return sortedList
+    
+
+
 
 def reqlab(catalog,numObras,medio):
     tecnicas=catalog['Medium']
@@ -425,6 +480,14 @@ def compareListDate(artwork1, artwork2):
     fechaObra1=artwork1['Date']
     fechaObra2=artwork2['Date']
     if fechaObra1<fechaObra2:
+        return 1
+    else:
+        return 0
+
+def cmpObrasNacionalidad(nacionalidad1, nacionalidad2):
+    conteo1 = nacionalidad1['contador']
+    conteo2 = nacionalidad2['contador']
+    if conteo1 > conteo2:
         return 1
     else:
         return 0

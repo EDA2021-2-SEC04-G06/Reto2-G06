@@ -63,6 +63,9 @@ def rangoArtistas(catalog, anho_inicial, anho_final):
 def rangoAcquired(catalog, fecha_inicial, fecha_final):
     return model.rangoAcquired(catalog, fecha_inicial,fecha_final)
 
+def obrasPorNacionalidad(catalog):
+    return model.obrasPorNacionalidad(catalog)
+
 def reqlab(catalog,numObras,medio):
     return model.reqlab(catalog,numObras,medio)
 
