@@ -35,6 +35,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import mergesort as sm
 from datetime import datetime
 from collections import Counter as count
+import numpy as np
 assert cf
 
 """
@@ -549,6 +550,15 @@ def cmpObrasNacionalidad(nacionalidad1, nacionalidad2):
         return 0
 
 
+def cmpArtDate(artwork1, artwork2):
+    fechaObra1 = artwork1[2]
+    fechaObra2 = artwork2[2]
+    if fechaObra1 < fechaObra2:
+        return 1
+    else:
+        return 0
+
+
 # Funciones de ordenamiento
 
 
@@ -557,32 +567,80 @@ def req5reto(catalog, depto):
     totalObras = 0
     pesoTotal = 0
     estimadoUSD = 0
+    deptoList = {depto: None, 'antiguedad': None,
+                 'ObrasporAntiguedad': None, 'costo': None, 'ObrasporCosto': None}
+    deptoList[depto] = lt.newList('ARRAY_LIST')
+    deptoList['antiguedad'] = lt.newList('ARRAY_LIST')
+    deptoList['ObrasporAntiguedad'] = lt.newList('ARRAY_LIST')
+    deptoList['costo'] = lt.newList('ARRAY_LIST')
+    deptoList['ObrasporCosto'] = lt.newList('ARRAY_LIST')
 
     for each in catalog['artworks']['elements']:
         if each['Department'] == depto:
             totalObras += 1
+            estimadoUSDeach = 0
+            estimadoUSDlist = []
             title = each['Title']
             clasf = each['Classification']
             date = each['Date']
             medium = each['Medium']
             dim = each['Dimensions']
-            mp.put(catalogDepts, depto, [title, clasf, date, medium, dim])
-
-            circum = each['Circumference (cm)']
-            depth = each['Depth (cm)']
-            diameter = each['Diameter (cm)']
             height = each['Height (cm)']
             length = each['Length (cm)']
             weight = each['Weight (kg)']
             width = each['Width (cm)']
-            seath = each['Seat Height (cm)']
 
+            if weight == '':
+                estimadoUSDlist.append(0)
             if weight != '':
                 pesoTotal += weight
+                estimadoUSDlist.append((72*float(weight)))
 
-            if length != '':
-                estimadoUSD += (72/int(weight)) + (int(length) * int(width)
-                                                   * int(height)*int(diameter)*int(depth)*int(circum)*int(seath))
+            if width != '' and height != '':
+                widthM = float(height)/100
+                heightM = float(width)/100
+                estimadoUSDlist.append(72*heightM * widthM)
 
-    print(estimadoUSD)
-    # Circumference (cm),Depth (cm),Diameter (cm),Height (cm),Length (cm),Weight (kg),Width (cm),Seat Height (cm)
+                if length != '':
+                    lengthM = float(length)/100
+                    estimadoUSDlist.append(72*heightM * widthM*lengthM)
+
+            estimadoUSDeach = max(estimadoUSDlist)
+            if estimadoUSDeach == 0:
+                estimadoUSDeach = 48
+            estimadoUSD += estimadoUSDeach
+
+            mp.put(catalogDepts, depto, [
+                   title, clasf, date, medium, dim, estimadoUSDeach])
+
+            mapaValor = mp.get(catalogDepts, depto)
+            mapaDeptos = me.getValue(mapaValor)
+            lt.addLast(deptoList[depto], mapaDeptos)
+
+    sublist = deptoList[depto]['elements'].copy()
+
+    for each in sublist:
+        if each[2] == '':
+            lt.addLast(deptoList['antiguedad'], 9999)
+        if each[2] != '':
+            lt.addLast(deptoList['antiguedad'], each[2])
+        if each[-1] != '':
+            lt.addLast(deptoList['costo'], each[-1])
+
+    dates = np.array(deptoList['antiguedad']['elements'])
+    indexdates = dates.argsort()[:6]
+    precios = np.array(deptoList['costo']['elements'])
+    indexprecios = precios.argsort()[-5:][::-1]
+
+    i = 0
+    while i < 5:
+        index = indexdates[i]
+        indexcosto = indexprecios[i]
+        lt.addLast(deptoList['ObrasporAntiguedad'], sublist[index])
+        lt.addLast(deptoList['ObrasporCosto'], sublist[indexcosto])
+        i += 1
+
+    oldest = (deptoList['ObrasporAntiguedad']['elements'])
+    expensive = deptoList['ObrasporCosto']['elements']
+
+    return totalObras, estimadoUSD, pesoTotal, oldest, expensive

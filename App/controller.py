@@ -84,3 +84,7 @@ def req2lab(catalog, nacionalidad):
 
 def req3reto(catalog, artista):
     return model.req3reto(catalog, artista)
+
+
+def req5reto(catalog, depto):
+    return model.req5reto(catalog, depto)

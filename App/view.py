@@ -421,7 +421,16 @@ while True:
         printPrimeras3ObrasNacionalidad(resultado)
         printUltimas3obrasNacionalidad(resultado)
 
-        pass
+    elif int(inputs[0]) == 6:
+        depto = input('Ingrese el departamento: ')
+        resultado = controller.req5reto(catalog, depto)
+        print('\nEl total de obras a transportar: '+str(resultado[0]))
+        print('\nEl estimado del precio de servicio (USD) es de: ' +
+              str(resultado[1]))
+        print('\nEl peso estimado de las obras es: '+str(resultado[2]))
+        print('\nLas 5 obras mas antiguas a transportar son: ' +
+              str(resultado[3]))
+        print('\nLas 5 obras mas costosas son: '+str(resultado[4]))
 
     else:
         sys.exit(0)
