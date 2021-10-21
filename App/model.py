@@ -59,12 +59,12 @@ def newCatalog():
 
     catalog['artists'] = lt.newList('ARRAY_LIST', cmpfunction=cmpConstituentID)
 
-    catalog['Nacimientos'] = mp.newMap(maptype='CHAINING',
-                                       loadfactor=4.0,
+    catalog['Nacimientos'] = mp.newMap(maptype='PROBING',
+                                       loadfactor=1.0,
                                        comparefunction=compareMapBeginDate)
 
-    catalog['FechaAdquirida'] = mp.newMap(maptype='CHAINING',
-                                          loadfactor=4.0,
+    catalog['FechaAdquirida'] = mp.newMap(maptype='PROBING',
+                                          loadfactor=1.0,
                                           comparefunction=compareMapDateAcquired)
 
     catalog['Medium'] = mp.newMap(200,
@@ -72,7 +72,7 @@ def newCatalog():
                                   loadfactor=4.0,
                                   comparefunction=compareMapMedium)
 
-    catalog['Nationality'] = mp.newMap(200, maptype='CHAINING',
+    catalog['Nationality'] = mp.newMap(maptype='CHAINING',
                                        loadfactor=4.0,
                                        comparefunction=compareMapNationality)
 
