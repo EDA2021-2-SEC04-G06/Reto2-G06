@@ -70,8 +70,8 @@ def rangoAcquired(catalog, fecha_inicial, fecha_final):
     return model.rangoAcquired(catalog, fecha_inicial, fecha_final)
 
 
-def obrasPorNacionalidad(catalog):
-    return model.obrasPorNacionalidad(catalog)
+def obrasPorNacionalidad(catalog,i):
+    return model.obrasPorNacionalidad(catalog,i)
 
 
 def reqlab(catalog, numObras, medio):

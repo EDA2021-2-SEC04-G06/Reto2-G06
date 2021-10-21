@@ -379,7 +379,7 @@ def rangoAcquired(catalog, fecha_inicial, fecha_final):
     return lista_final, contadorPruchase
 
 
-def obrasPorNacionalidad(catalog):
+def obrasPorNacionalidad(catalog,i):
     nacionalidades = catalog['Nationality']
     lista = mp.keySet(nacionalidades)
     orden = {'Nacionalidades': None}
@@ -389,7 +389,8 @@ def obrasPorNacionalidad(catalog):
         size = lt.size(
             ((mp.get(nacionalidades, nacionalidad))['value'])['artworks'])
         lista = mp.get(nacionalidades, nacionalidad)['value']['artworks']
-        lt.deleteElement(lista, 2)
+        if i<1:
+            lt.deleteElement(lista, 2)
         nacionalidadAdd = {'Nacionalidad': nacionalidad,
                            'contador': size-1, 'artworks': lista}
 

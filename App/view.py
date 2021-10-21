@@ -380,9 +380,8 @@ while True:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         loadData(catalog)
-
-        print(
-            (((mp.get(catalog["Nationality"], 'American'))['value'])['artworks']))
+        i=0
+        
 
     elif int(inputs[0]) == 2:
         anho_inicial = input("\nIngrese el año inicial: ")
@@ -416,10 +415,11 @@ while True:
         printultimos3(resultado[3])
 
     elif int(inputs[0]) == 5:
-        resultado = controller.obrasPorNacionalidad(catalog)
+        resultado = controller.obrasPorNacionalidad(catalog,i)
         printTOP10(resultado)
         printPrimeras3ObrasNacionalidad(resultado)
         printUltimas3obrasNacionalidad(resultado)
+        i+=1
 
     elif int(inputs[0]) == 6:
         depto = input('Ingrese el departamento: ')
